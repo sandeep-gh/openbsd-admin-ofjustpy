@@ -45,3 +45,16 @@ libc6-dev
 libsqlite3-dev
 libbz2-dev
 libffi-dev
+
+** setup
+
+export PYTHONPATH=./remotescripts:$PYTHONPAT
+
+** TODOs
+- ship env.sh
+- include env.sh in remote script
+- nginx
+- unit
+- profit
+      
+  

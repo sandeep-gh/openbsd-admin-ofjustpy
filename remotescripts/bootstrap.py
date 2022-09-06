@@ -28,12 +28,4 @@ exec_cmd([
     ])
 
 
-# initialize the env bookkeeping
-env_fp = f"{project_root}/itadmin/env.pickle"
-if not os.path.exists(env_fp):
-    env = {}
-    with open(env_fp, "wb") as fh:
-        pickle.dump(env, fh)
-
-        
 
