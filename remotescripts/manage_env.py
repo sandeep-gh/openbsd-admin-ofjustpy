@@ -6,19 +6,19 @@ import os
 
 env_fp = f"{project_root}/itadmin/env.pickle"
 
-def add_to_env(varname, path):
-    with open(env_fp, "rb") as fh:
-        envvars = pickle.load(fh)
+# def add_to_env(varname, path):
+#     with open(env_fp, "rb") as fh:
+#         envvars = pickle.load(fh)
 
-    if varname in envvars.keys():
-        if path not in envvars[varname]:
-            envvars[varname].append(path)
-    else:
-        envvars[varname] = []
-        envvars[varname].append(path)
-    print(envvars)
-    with open(env_fp, "wb") as fh:
-        pickle.dump(envvars, fh)
+#     if varname in envvars.keys():
+#         if path not in envvars[varname]:
+#             envvars[varname].append(path)
+#     else:
+#         envvars[varname] = []
+#         envvars[varname].append(path)
+#     print(envvars)
+#     with open(env_fp, "wb") as fh:
+#         pickle.dump(envvars, fh)
 
 
 def build_env():

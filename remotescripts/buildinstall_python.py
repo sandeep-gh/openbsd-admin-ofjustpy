@@ -12,7 +12,7 @@ CXX = "/usr/bin/c++"
 name="Python"
 major_version = 3
 minor_version = 11
-suffix = "0b5"
+suffix = "0rc1"
 sname = f"{name}-{major_version}.{minor_version}"
 fqname = f"{sname}.{suffix}"
 url = f"https://www.python.org/ftp/python/{major_version}.{minor_version}.0/{fqname}.tar.xz"
@@ -22,7 +22,7 @@ def buildinstall():
     os.chdir(project_root)
     os.chdir("downloads")
     if not os.path.exists(fqname):
-        #fn = wget.download(url)
+        fn = wget.download(url)
         exec_cmd(["unxz", f"{fqname}.tar.xz"])
         exec_cmd(["tar", "xvf", f"{fqname}.tar"])
         exec_cmd(["rm",  f"{fqname}.tar"])

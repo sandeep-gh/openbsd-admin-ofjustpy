@@ -1,3 +1,26 @@
+* Remote deploy command
+python3 ~/Development/openbsd-admin-ofjustpy/deploy_site.py ./monallabs.in.webcontent.tgz monallabs ".in" "coreapp"
+- Edit /etc/hosts
+#+BEGIN_SRC
+127.0.0.1       localhost
+::1             localhost
+127.0.0.1       monallabs.in
+#+END_SRC
+
+- unit config probe and set via domin sockets
+  #+BEGIN_SRC
+  doas  curl  --unix-socket  /var/run/unit/control.sock http://localhost/config/
+  
+  #+END_SRC
+  
+  
+* The patches
+ patch  -p1 </tmp/nxt_python.c.patch
+
+* nginx-unit deployment cmds
+
+tar cvzf webcontent.tgz index.html simpleapp.py  
+
 * Resurgence
 - run syspatch post install (and reboot)
 - run sysupgrade

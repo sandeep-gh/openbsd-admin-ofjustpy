@@ -8,13 +8,13 @@ import wget
 
 CXX = "/usr/bin/c++"
 
-os.chdir(project_root)
+
 
 name="nginx"
 version="1.23.1"
 fqname=f"{name}-{version}"
-url = "http://nginx.org/download/{fqn}.tar.gz"
-
+#url = "http://nginx.org/download/{fqname}.tar.gz"
+url = "http://nginx.org/download/nginx-1.23.1.tar.gz"
 
 def openssl():
     version = "1.1.1q"
@@ -32,6 +32,7 @@ def install(force_rebuild=False):
     os.chdir("downloads")
 
     if not os.path.exists(fqname):
+        print ("url = ", url)
         fn = wget.download(url)
         os.system(f"gunzip {name}-{version}.tar.gz")
         os.system(f"tar xvf {name}-{version}.tar")
@@ -41,7 +42,7 @@ def install(force_rebuild=False):
         if not os.path.exists(f"{name}-{version}"):
             os.makedirs(f"{name}-{version}")
             os.chdir(f"{project_root}/downloads/{name}-{version}")
-            build_cmd = f""". /tmp/env.sh ;
+            build_cmd = f""". /tmp/env.sh ; source  /home/shared/pyvenv/bin/activate; 
             ./configure --prefix={project_root}/Builds/{name}-{version} \
             --sbin-path=/usr/sbin/nginx \
             --modules-path=/usr/lib64/nginx/modules  \
@@ -80,13 +81,28 @@ def install(force_rebuild=False):
             --with-stream_realip_module \
             --with-stream_ssl_module \
             --with-stream_ssl_preread_module \
-            --with-openssl=/home/shared/downloads/openssl-1.1.1l/
+            --with-openssl=/home/shared/downloads/openssl-1.1.1q/
             
             make
             doas make install
             """
+            #TODO: fix --with-openssl path 
             print(build_cmd)
             os.system(build_cmd)
+
+            exec_cmd("doas chown -R www:www /var/log/nginx".split())
+            exec_cmd("doas mkdir -p /var/cache/nginx".split())
+            exec_cmd("doas chown -R www:www /var/cache/nginx".split())
+            exec_cmd("doas mkdir /etc/nginx/conf.d".split())
+
+            #TODO: also copy ngnix.conf
+            exec_cmd("doas cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig".split())
+
+            exec_cmd("doas cp /tmp/nginx.conf /etc/nginx/".split())
+            
+            # post-install configure
+            #doas mkdir /var/cache/nginx
+            #doas chown www:www /var/cache/nginx
 
             # ==================== path ownerships ===================
             # /var/log/nginx
@@ -100,8 +116,9 @@ def install(force_rebuild=False):
 
 
 # os.chdir(f"{project_root}")
-
-if os.path.exists("/tmp/env.sh"):
-    print ("installing..")
-    install()
+def buildinstall():
+    os.chdir(project_root)
+    if os.path.exists("/tmp/env.sh"):
+        print ("installing..")
+        install()
     
