@@ -1,3 +1,7 @@
+* nginx ssl is fails with
+- first key insight here 
+https://stackoverflow.com/questions/58260249/niginx-server-ssl-error-rx-record-too-long
+
 * Remote deploy command
 python3 ~/Development/openbsd-admin-ofjustpy/deploy_site.py ./monallabs.in.webcontent.tgz monallabs ".in" "coreapp"
 - Edit /etc/hosts

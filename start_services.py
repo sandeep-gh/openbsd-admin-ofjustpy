@@ -28,6 +28,11 @@ class MyHandler(EventHandler):
 
 task = Task()
 
+task.copy("/tmp/env.sh", "/tmp", nodes=nodeset)
+task.resume()
+task_wait()
+
+
 task.copy("/home/kabira/Development/openbsd-admin-ofjustpy/remotescripts/start_services.py", "/tmp", nodes=nodeset)
 task.resume()
 task_wait()
