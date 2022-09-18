@@ -13,96 +13,95 @@ def delete_site(site_name="example", site_domain=".in"):
 
 
 def host_site(content_tgz_fn, applabel, site_name, site_domain, port):
-    # nginx_site_directive = f"""
-
-    # upstream {applabel}_unit {{
-    # # fail_timeout=0 means we always retry an upstream even if it failed
-    # server 127.0.0.1:8080 fail_timeout=0;
-
-    # }}
-    # server {{
-    # listen         {port}; 
-    # listen         [::]:{port}; 
-    # server_name    {site_name}{site_domain} www.{site_name}{site_domain};
-    # root           /var/www/htdocs/{site_name}{site_domain};
-    # location / {{
-    # proxy_pass http://{applabel}_unit;
-    # proxy_set_header Host $host;
-    # proxy_set_header X-Real-IP $remote_addr;
-
-
-    # }}
-    # }}"""
-
-    # #TODO: why we need try_files
-    # #index          index.html;
-    # #try_files $uri /index.html;
+    # the port at which nginx and unit communicate
+    # to be replace with unix socket 
+    nginx_unit_port = port + 80
     
-    # try:
-    #     res = exec_cmd(
-    #         f"mkdir /tmp/{site_name}{site_domain}".split())
-    #     os.chdir(f"/tmp/{site_name}{site_domain}")
-    #     res = exec_cmd(
-    #         f"tar xvzf /tmp/{content_tgz_fn}".split())
+    nginx_site_directive = f"""
 
-    #     # os.chdir(f"/var/www/htdocs/{site_name}{site_domain}")
-    #     cmdl = f"""doas  mv /tmp/{site_name}{site_domain}  /var/www/htdocs/ """.split(
-    #     )
-    #     # Already did that 
-    #     #exec_cmd(cmdl)
+    upstream {applabel}_unit {{
+    # fail_timeout=0 means we always retry an upstream even if it failed
+    server 127.0.0.1:{nginx_unit_port} fail_timeout=0;
 
-    #     # ============================= done =============================
-    #     with open(f"/tmp/{site_name}{site_domain}.conf", "w") as fh:
-    #         fh.write(nginx_site_directive)
+    }}
+    server {{
+    listen         {port}; 
+    listen         [::]:{port}; 
+    server_name    {site_name}{site_domain} www.{site_name}{site_domain};
+    root           /var/www/htdocs/{site_name}{site_domain};
+    location / {{
+    proxy_pass http://{applabel}_unit;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
 
-    #     cmdl = ["doas", "cp", f"/tmp/{site_name}{site_domain}.conf",
-    #             "/etc/nginx/conf.d/"]
+
+    }}
+    }}"""
+
+    #TODO: why we need try_files
+    #index          index.html;
+    #try_files $uri /index.html;
+    
+    try:
+        res = exec_cmd(
+            f"mkdir /tmp/{site_name}{site_domain}".split())
+        os.chdir(f"/tmp/{site_name}{site_domain}")
+        res = exec_cmd(
+            f"tar xvzf /tmp/{content_tgz_fn}".split())
+
+        # os.chdir(f"/var/www/htdocs/{site_name}{site_domain}")
+        cmdl = f"""doas  mv /tmp/{site_name}{site_domain}  /var/www/htdocs/ """.split(
+        )
+        # Already did that 
+        exec_cmd(cmdl)
+
+        # ============================= done =============================
+        with open(f"/tmp/{site_name}{site_domain}.conf", "w") as fh:
+            fh.write(nginx_site_directive)
+
+        cmdl = ["doas", "cp", f"/tmp/{site_name}{site_domain}.conf",
+                "/etc/nginx/conf.d/"]
         
-    #     #exec_cmd(cmdl)
+        exec_cmd(cmdl)
 
         #configure a listener in Unit
 
         # first build a virtual env
-        # already done; open it later 
-        # os.system("""
-        # doas sh /tmp/setup_py_venv.sh {site_name} {site_domain}
-        # """
-        #           )
+        os.system(f"""doas sh /tmp/setup_py_venv.sh {site_name} {site_domain}"""
+                  )
         
-# This one works 
-#     {
-#             "listeners": {
-#                 "*:8080": {
-#                     "pass": "routes"
-#                 }
-#             },
+        # This one works 
+        #     {
+        #             "listeners": {
+        #                 "*:8080": {
+        #                     "pass": "routes"
+        #                 }
+        #             },
 
-#             "routes": [
-#                 {
-#                     "action": {
-#                         "pass": "applications/starlette"
-#                     }
-#                 }
-#             ],
+        #             "routes": [
+        #                 {
+        #                     "action": {
+        #                         "pass": "applications/starlette"
+        #                     }
+        #                 }
+        #             ],
 
-#             "applications": {
-#                 "starlette": {
-#                     "type": "python 3.11",
-#                     "path": "/var/www/htdocs/monallabs.in/",
-#                     "home": "/var/www/htdocs/monallabs.in/venv/",
-#                     "module": "simpleapp",
-#                     "callable": "app"
-#                 }
-#             }
-# }
-
-    
+        #             "applications": {
+        #                 "starlette": {
+        #                     "type": "python 3.11",
+        #                     "path": "/var/www/htdocs/monallabs.in/",
+        #                     "home": "/var/www/htdocs/monallabs.in/venv/",
+        #                     "module": "simpleapp",
+        #                     "callable": "app"
+        #                 }
+        #             }
+        # }
                   
         unit_directive = f"""
 
         {{
             "listeners": {{
-                "*:8080": {{
+                "*:{nginx_unit_port}": {{
                     "pass": "routes"
                 }}
             }},
@@ -118,25 +117,17 @@ def host_site(content_tgz_fn, applabel, site_name, site_domain, port):
             "applications": {{
                 "starlette": {{
                     "type": "python 3.11",
-                    "path": "/var/www/htdocs/{site_name}{site_domain}/{applabel}.py",
+                    "path": "/var/www/htdocs/{site_name}{site_domain}/",
                     "home": "/var/www/htdocs/{site_name}{site_domain}/venv/",
-                    "module": "asgi",
+                    "module": "{applabel}",
                     "callable": "app"
                 }}
             }}
         }}
 
         """
-    
         with open("/tmp/unit_cfg.json", "w") as fh:
             fh.write(unit_directive)
-
-
-    # except Exception as e:
-    #     raise e
-    # finally:
-    #     res = exec_cmd(
-    #         f"rm -f /tmp/{site_name}{site_domain}".split())
 
 
 def deploy(content_tgz_fn, applabel, site_name, site_domain, port=9000):

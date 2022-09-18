@@ -160,6 +160,7 @@ def task_remote_bootstrap():
     return {
         'actions': [(do_action_ok, [], {'remote_deps':['bootstrap.py', 'manage_env.py', 'utils.py', 'config.py'],
                                         'targets': ["/logs/remote_bootstrap.log"],
+                                        'pkgs': 'zip'
                                         })],
         }
 
@@ -305,7 +306,32 @@ def task_buildinstall_nginx_unit():
                                         })],
         } 
 
- 
+def task_install_software_stack():
+   """
+   deploy all the necessary codes/library/modules/resources to host website.
+   """
+   @check_target
+   def do_action(*args, **kwargs):
+      task.shell("""cd /tmp; 
+      python3 -c "import install_software_stack; install_software_stack.install()"
+      """, nodes=nodeset, handler=MyHandler())
+      task.resume()
+      task_wait()
+      # No need to add any path;
+      # everything is installed in /usr/sbin, /etc, /var
+      mod = load_module("install_software_stack")
+      path = f"{config.project_root}/pylibs/"
+      for ln, lb, lu in mod.pylibs:
+         add_to_env("PYTHONPATH", f"{path}/{ln}-{lb}")
+
+      pass
+   return {
+      'actions': [(do_action, [], {'remote_deps':["install_software_stack.py"],
+                                        'targets': ["/logs/install_software_stack.log"],
+                                        'pkgs': ['pcre']
+                                        })],
+      }
+   pass
 def load_module(modname):
 
     spec = importlib.util.spec_from_file_location(modname, f"./remotescripts/{modname}.py")

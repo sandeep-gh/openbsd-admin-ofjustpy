@@ -1,3 +1,9 @@
+* To run
+doit  -f ~/Development/openbsd-admin-ofjustpy/dodo.py --verbosity 2
+
+* Things we need before getting started
+in  .github_token put oauth token
+
 * nginx ssl is fails with
 - first key insight here 
 https://stackoverflow.com/questions/58260249/niginx-server-ssl-error-rx-record-too-long

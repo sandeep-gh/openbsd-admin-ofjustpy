@@ -3,7 +3,6 @@ import sys
 from subprocess import Popen, PIPE
 from utils import exec_cmd
 from config import project_root
-import os
 import wget
 
 CXX = "/usr/bin/c++"
