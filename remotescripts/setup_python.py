@@ -11,3 +11,21 @@ def setup():
 ]
 
                  )
+
+        # install these as well 
+        pip_modules = ["jinja2",
+                       "aenum",
+                       "itsdangerous",
+                       "hjson",
+                       "httpx",
+                       "psutil",
+                       "starlette",
+                       "uvicorn",
+                       "websockets",
+                       "aiofiles",
+                       "twine",
+                       "wheel",
+                       "aenum",
+                       "jsbeautifier",
+                       "dpath",
+                       ]

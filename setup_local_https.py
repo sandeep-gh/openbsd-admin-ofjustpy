@@ -1,7 +1,10 @@
 deployment_machine=192.168.0.105
 development_machine=192.168.0.102
 browser_machine=192.168.0.107
+browser_sudo_user = "pi"
+
 passphrase = "memorable"
+
 src_dir = os.path.dirname(os.path.realpath(__file__))
 # Step 1: copy passphrase.txt and setup_local_https_deploy_machine.py"
 nodeset = NodeSet()

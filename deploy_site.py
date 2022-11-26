@@ -28,24 +28,54 @@ class MyHandler(EventHandler):
 
 task = Task()
 
-def deploy_site(content_tgz_fp, applabel, site_name, site_domain):
-    task.copy(content_tgz_fp, "/tmp", nodes=nodeset, handler=MyHandler())
-    task.resume()
-    task_wait()
+def deploy_site(content_tgz_fp, applabel, site_name, site_domain, port):
+   #TODO:
+   # need to copy over env.sh
+   task.copy(content_tgz_fp, "/tmp", nodes=nodeset, handler=MyHandler())
+   task.resume()
+   task_wait()
 
-    task.copy(f"{src_dir}/remotescripts/deploy_site.py", "/tmp", nodes=nodeset, handler=MyHandler())
-    task.resume()
-    task_wait()
+   
+   task.copy(f"{src_dir}/remotescripts/config.py", "/tmp", nodes=nodeset, handler=MyHandler())
+   task.resume()
+   task_wait()
 
-    content_tgz_fn = os.path.basename(content_tgz_fp)
-    task.shell(f"""
-        cd /tmp; python3 -c "import deploy_site; deploy_site.deploy(\\"{content_tgz_fn}\\", \\"{applabel}\\", \\"{site_name}\\", \\"{site_domain}\\")"
-        """, nodes=nodeset, handler=MyHandler())
+   task.copy(f"{src_dir}/remotescripts/utils.py", "/tmp", nodes=nodeset, handler=MyHandler())
+   task.resume()
+   task_wait()
 
-    task.resume()
-    task_wait()
-    task.abort()
+
+   task.copy(f"{src_dir}/remotescripts/deploy_site.py", "/tmp", nodes=nodeset, handler=MyHandler())
+   task.resume()
+   task_wait()
+   
+   task.copy(f"{src_dir}/remotescripts/setup_py_venv.sh", "/tmp", nodes=nodeset, handler=MyHandler())
+   task.resume()
+   task_wait()
+
+    
+
+   # copy over certificate files
+   task.copy(f"{site_name}.test.crt", "/tmp", nodes=nodeset, handler=MyHandler())
+   task.resume()
+   task_wait()
+
+   task.copy(f"{site_name}.test.key", "/tmp", nodes=nodeset, handler=MyHandler())
+   task.resume()
+   task_wait()
+
+    
+    
+   content_tgz_fn = os.path.basename(content_tgz_fp)
+   task.shell(f"""
+   cd /tmp; python3 -c "import deploy_site; deploy_site.deploy(\\"{content_tgz_fn}\\", \\"{applabel}\\", \\"{site_name}\\", \\"{site_domain}\\", \\"{port}\\")"
+   """, nodes=nodeset, handler=MyHandler())
+
+   task.resume()
+   task_wait()
+   task.abort()
 
 
 import sys
-deploy_site(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+# tgz-filename, applable, site-name, site-domain
+deploy_site(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

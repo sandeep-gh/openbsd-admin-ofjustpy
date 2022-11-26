@@ -12,7 +12,7 @@ CXX = "/usr/bin/c++"
 name="Python"
 major_version = 3
 minor_version = 11
-suffix = "0rc1"
+suffix = "0"
 sname = f"{name}-{major_version}.{minor_version}"
 fqname = f"{sname}.{suffix}"
 url = f"https://www.python.org/ftp/python/{major_version}.{minor_version}.0/{fqname}.tar.xz"
@@ -38,3 +38,4 @@ def buildinstall():
                 """
     os.system(build_cmd)
 
+buildinstall()
